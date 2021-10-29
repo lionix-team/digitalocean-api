@@ -1,6 +1,6 @@
 {
     "name": "lionix-team/digitalocean-api",
-    "description": "Laravel Package",
+    "description": "Digital Ocean API for Laravel Framework",
     "type": "library",
     "license": "MIT",
     "authors": [

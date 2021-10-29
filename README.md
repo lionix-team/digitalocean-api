@@ -1,2 +1,2 @@
-# Laravel Package 
+# Digital Ocean API for Laravel Framework
 
