@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Domains\\" : "./src"
+            "DigitaloceanApi\\" : "./src"
         }
     },
     "autoload-dev": {
@@ -26,10 +26,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Providers\\ConfigServiceProvider"
+                "DigitaloceanApi\\Providers\\ConfigServiceProvider"
             ],
             "aliases": {
-                "Domains": "Facades\\DomainFacade"
+                "Domains": "DigitaloceanApi\\Facades\\DomainFacade"
             }
         }
     },

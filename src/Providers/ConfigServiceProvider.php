@@ -1,6 +1,6 @@
 <?php
 
-namespace Providers;
+namespace DigitaloceanApi\Providers;
 
 use Services\DomainService;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
@@ -15,7 +15,7 @@ class ConfigServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/digital-ocean.php' => config_path('digital-ocean.php'),
+            __DIR__.'/../../config/digital-ocean.php' => config_path('digital-ocean.php'),
         ]);
     }
 
@@ -27,7 +27,7 @@ class ConfigServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/digital-ocean.php', 'digital-ocean'
+            __DIR__.'/../../config/digital-ocean.php', 'digital-ocean'
         );
 
         $this->app->bind(DomainService::class);

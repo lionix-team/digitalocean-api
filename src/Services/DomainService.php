@@ -1,6 +1,6 @@
 <?php
 
-namespace Services;
+namespace DigitaloceanApi\Services;
 
 use GuzzleHttp\Client;
 
@@ -8,10 +8,10 @@ class DomainService
 {
     public function index()
     {
+        $digitaloceanToken = config('digital-ocean.token');
         $headers = [
             'Content-Type' => 'application/json',
-            'AccessToken' => 'key',
-            'Authorization' => 'Bearer token',
+            'Authorization' => "Bearer ${digitaloceanToken}",
         ];
 
         $client = new Client([

@@ -1,6 +1,6 @@
 <?php
 
-namespace Facades;
+namespace DigitaloceanApi\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Services\DomainService;

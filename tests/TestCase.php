@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use Providers\ConfigServiceProvider;
+use DigitaloceanApi\Providers\ConfigServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
