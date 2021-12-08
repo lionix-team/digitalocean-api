@@ -5,6 +5,7 @@ namespace Tests\Feature\Domains;
 use Tests\TestCase;
 use DigitaloceanApi\Services\DomainService;
 use function PHPUnit\Framework\assertTrue;
+use Illuminate\Support\Facades\Log;
 
 class TestDomainService extends TestCase
 {
@@ -17,8 +18,27 @@ class TestDomainService extends TestCase
         $this->service = $this->app->make(DomainService::class);
     }
 
-    public function testGago()
+    public function testIndex()
     {
-        $this->service->index();
+        $result = $this->service->index();
+        file_put_contents("tests/logs/DomainServiceLogs.log", json_encode($result).PHP_EOL, FILE_APPEND | LOCK_EX);
+    }
+
+    public function testStore()
+    {
+        $result = $this->service->store(['name' => 'digital-ocean-package.io']);
+        file_put_contents("tests/logs/DomainServiceLogs.log", json_encode($result).PHP_EOL, FILE_APPEND | LOCK_EX);
+    }
+
+    public function testShow()
+    {
+        $result = $this->service->show('digital-ocean-package.io');
+        file_put_contents("tests/logs/DomainServiceLogs.log", json_encode($result).PHP_EOL, FILE_APPEND | LOCK_EX);
+    }
+
+    public function testDestroy()
+    {
+        $result = $this->service->destroy('digital-ocean-package.io');
+        file_put_contents("tests/logs/DomainServiceLogs.log", json_encode($result).PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 }
