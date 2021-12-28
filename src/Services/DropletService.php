@@ -5,7 +5,7 @@ namespace DigitaloceanApi\Services;
 use Illuminate\Support\Facades\Validator;
 use DigitaloceanApi\Services\SendRequestService;
 
-class DomainService
+class DropletService
 {
     /**
      * @var $sendRequestService
@@ -22,18 +22,30 @@ class DomainService
      */
     public function __construct(SendRequestService $sendRequestService)
     {
-        $this->domainsApiUrl = config('digital-ocean.api-urls.domains');
+        $this->domainsApiUrl = config('digital-ocean.api-urls.droplets');
         $this->sendRequestService = $sendRequestService;
     }
 
     /**
+     * @param int $perPage
+     * @param int $page
+     *
      * @return mixed|\stdClass
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function index()
-    {
-        return $this->sendRequestService->send('GET', $this->domainsApiUrl);
+    public function index(
+        int $perPage = 20,
+        int $page = 1
+    ) {
+        $repuestParams = [
+            'json' =>[
+                'per_page' => $perPage,
+                'page' => $page,
+            ],
+        ];
+
+        return $this->sendRequestService->send('GET', $this->domainsApiUrl, $repuestParams);
     }
 
     /**
@@ -55,27 +67,27 @@ class DomainService
     }
 
     /**
-     * @param string $name
+     * @param int $dropletId
      *
      * @return mixed|\stdClass
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function show(string $name)
+    public function show(int $dropletId)
     {
-        return $this->sendRequestService->send('GET', "{$this->domainsApiUrl}/{$name}");
+        return $this->sendRequestService->send('GET', "{$this->domainsApiUrl}/{$dropletId}");
     }
 
     /**
-     * @param string $name
+     * @param int $dropletId
      *
      * @return mixed|\stdClass
-
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function destroy(string $name)
+    public function destroy(int $dropletId)
     {
-        return $this->sendRequestService->send('DELETE', "{$this->domainsApiUrl}/${name}");
+        return $this->sendRequestService->send('DELETE', "{$this->domainsApiUrl}/{$dropletId}");
     }
 
     /**
@@ -84,8 +96,18 @@ class DomainService
     private function getStoreRules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'ip_address' => 'nullable|string',
+            'name' => 'required|string',
+            'region' => 'required|string',
+            'size' => 'required|string',
+            'image' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
+            'ssh_keys' => 'nullable|array',
+            'backups' => 'nullable|boolean',
+            'ipv6' => 'nullable|boolean',
+            'monitoring' => 'nullable|boolean',
+            'tags' => 'nullable|array',
+            'user_data' => 'nullable|string',
+            'vpc_uuid' => 'nullable|string',
+            'with_droplet_agent' => 'nullable|boolean',
         ];
     }
 }

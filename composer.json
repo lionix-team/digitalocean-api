@@ -29,7 +29,8 @@
                 "DigitaloceanApi\\Providers\\ConfigServiceProvider"
             ],
             "aliases": {
-                "Domains": "DigitaloceanApi\\Facades\\DomainFacade"
+                "Domains": "DigitaloceanApi\\Facades\\DomainFacade",
+                "Droplets": "DigitaloceanApi\\Facades\\DropletFacade"
             }
         }
     },

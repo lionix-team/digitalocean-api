@@ -4,8 +4,6 @@ namespace Tests\Feature\Domains;
 
 use Tests\TestCase;
 use DigitaloceanApi\Services\DomainService;
-use function PHPUnit\Framework\assertTrue;
-use Illuminate\Support\Facades\Log;
 
 class TestDomainService extends TestCase
 {
