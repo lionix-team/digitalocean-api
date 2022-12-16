@@ -3,7 +3,7 @@
 namespace Tests\Feature\Domains;
 
 use Tests\TestCase;
-use DigitaloceanApi\Services\DomainService;
+use Digitalocean\Services\DomainService;
 
 class TestDomainService extends TestCase
 {
@@ -18,7 +18,7 @@ class TestDomainService extends TestCase
 
     public function testIndex()
     {
-        $result = $this->service->index();
+        $result = $this->service->list();
         file_put_contents("tests/logs/DomainServiceLogs.log", json_encode($result).PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 

@@ -2,13 +2,13 @@
 
 namespace Digitalocean\Facades;
 
-use Digitalocean\Services\DomainService;
+use Digitalocean\Services\DropletsService;
 use Illuminate\Support\Facades\Facade;
 
-class DomainFacade extends Facade
+class DropletsFacade extends Facade
 {
     public static function getFacadeAccessor(): string
     {
-        return DomainService::class;
+        return DropletsService::class;
     }
 }

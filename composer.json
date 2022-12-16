@@ -1,5 +1,5 @@
 {
-    "name": "lionix-team/digitalocean-api",
+    "name": "lionix/digitalocean",
     "description": "Digital Ocean API for Laravel Framework",
     "type": "library",
     "license": "MIT",
@@ -7,6 +7,10 @@
         {
             "name": "Arayik Smbatyan",
             "email": "arayiksmbatyan@gmail.com"
+        },
+        {
+            "name": "Sergey Karakhanyan",
+            "email": "sergey@lionix.io"
         }
     ],
     "require": {
@@ -15,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DigitaloceanApi\\" : "./src"
+            "Digitalocean\\" : "./src"
         }
     },
     "autoload-dev": {
@@ -26,11 +30,14 @@
     "extra": {
         "laravel": {
             "providers": [
-                "DigitaloceanApi\\Providers\\ConfigServiceProvider"
+                "Digitalocean\\Providers\\ConfigServiceProvider"
             ],
             "aliases": {
-                "Domains": "DigitaloceanApi\\Facades\\DomainFacade",
-                "Droplets": "DigitaloceanApi\\Facades\\DropletFacade"
+                "Domains": "Digitalocean\\Facades\\DomainFacade",
+                "Droplets": "Digitalocean\\Facades\\DropletsFacade",
+                "Snapshots": "Digitalocean\\Facades\\SnapshotFacade",
+                "DropletActions": "Digitalocean\\Facades\\DropletActions",
+                "Digitalocean": "Digitalocean\\Facades\\DigitaloceanFacade"
             }
         }
     },

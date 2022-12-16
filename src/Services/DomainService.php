@@ -1,39 +1,31 @@
 <?php
 
-namespace DigitaloceanApi\Services;
+namespace Digitalocean\Services;
 
 use Illuminate\Support\Facades\Validator;
-use DigitaloceanApi\Services\SendRequestService;
 
 class DomainService
 {
     /**
-     * @var $sendRequestService
+     * @var mixed|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application
      */
-    protected $sendRequestService;
+    protected mixed $domainsApiUrl;
 
     /**
-     * @var $domainsApiUrl
+     * @param \Digitalocean\Services\DigitaloceanApi $digitaloceanApi
      */
-    protected $domainsApiUrl;
-
-    /**
-     * @param \DigitaloceanApi\Services\SendRequestService $sendRequestService
-     */
-    public function __construct(SendRequestService $sendRequestService)
+    public function __construct(protected DigitaloceanApi $digitaloceanApi)
     {
-        $this->domainsApiUrl = config('digital-ocean.api-urls.domains');
-        $this->sendRequestService = $sendRequestService;
+        $this->domainsApiUrl = config('digital-ocean.endpoints.domains');
     }
 
     /**
      * @return mixed|\stdClass
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
      */
-    public function index()
+    public function list(): mixed
     {
-        return $this->sendRequestService->send('GET', $this->domainsApiUrl);
+        return $this->digitaloceanApi->send('GET', $this->domainsApiUrl);
     }
 
     /**
@@ -41,17 +33,17 @@ class DomainService
      *
      * @return \Illuminate\Support\MessageBag|mixed|\stdClass
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
      */
-    public function store(array $params)
+    public function store(array $params): mixed
     {
         $validator = Validator::make($params, $this->getStoreRules());
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return $validator->errors();
         }
 
-        return $this->sendRequestService->send('POST', $this->domainsApiUrl, ['json' => $params]);
+        return $this->digitaloceanApi->send('POST', $this->domainsApiUrl, $params);
     }
 
     /**
@@ -59,29 +51,28 @@ class DomainService
      *
      * @return mixed|\stdClass
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
      */
-    public function show(string $name)
+    public function show(string $name): mixed
     {
-        return $this->sendRequestService->send('GET', "{$this->domainsApiUrl}/{$name}");
+        return $this->digitaloceanApi->send('GET', "{$this->domainsApiUrl}/{$name}");
     }
 
     /**
      * @param string $name
      *
      * @return mixed|\stdClass
-
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
      */
-    public function destroy(string $name)
+    public function destroy(string $name): mixed
     {
-        return $this->sendRequestService->send('DELETE', "{$this->domainsApiUrl}/${name}");
+        return $this->digitaloceanApi->send('DELETE', "{$this->domainsApiUrl}/${name}");
     }
 
     /**
      * @return string[]
      */
-    private function getStoreRules()
+    private function getStoreRules(): array
     {
         return [
             'name' => 'required|string|max:255',
