@@ -61,7 +61,7 @@ class DigitalOceanController extends Controller
      */
     public function droplets(DropletsService $dropletsService): \Illuminate\Http\JsonResponse
     {
-        $droplets = $dropletsService->index();
+        $droplets = $dropletsService->list();
 
         return response()->json($droplets);
     }
