@@ -34,9 +34,9 @@
                 "Digitalocean\\Providers\\ConfigServiceProvider"
             ],
             "aliases": {
-                "Domains": "Digitalocean\\Facades\\DomainFacade",
+                "Domains": "Digitalocean\\Facades\\DomainsFacade",
                 "Droplets": "Digitalocean\\Facades\\DropletsFacade",
-                "Snapshots": "Digitalocean\\Facades\\SnapshotFacade",
+                "Snapshots": "Digitalocean\\Facades\\SnapshotsFacade",
                 "DropletActions": "Digitalocean\\Facades\\DropletActions",
                 "Digitalocean": "Digitalocean\\Facades\\DigitaloceanFacade"
             }

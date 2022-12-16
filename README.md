@@ -31,11 +31,11 @@ DO_API_KEY=your_api_key
 ## Available Services
 
 - [Droplets](#droplets)
-- [Droplet Actions](#droplet-actions)
-- [Domains](#domains)
-- [Snapshots](#snapshots)
-- [Global Service](#global-service)
-- [DO Snapshot Command](#do-snapshot-command)
+- [Droplet Actions](https://docs.lionix.io/laravel-digitalocean-api#droplet-actions)
+- [Domains](https://docs.lionix.io/laravel-digitalocean-api#domains)
+- [Snapshots](https://docs.lionix.io/laravel-digitalocean-api#snapshots)
+- [Global Service](https://docs.lionix.io/laravel-digitalocean-api#global-service)
+- [DO Snapshot Command](https://docs.lionix.io/laravel-digitalocean-api#do-snapshot-command)
 
 All the services can be used 
 by injecting the service into 
@@ -89,5 +89,5 @@ Digitalocean::droplets()->list();
 
 ---
 
-### Read full documentation in our [Docs](https://docs.lionix.io/)
+### Read full documentation in our [Docs](https://docs.lionix.io/laravel-digitalocean-api)
 

@@ -4,7 +4,7 @@ namespace Digitalocean\Services;
 
 use Illuminate\Support\Facades\Validator;
 
-class DomainService
+class DomainsService
 {
     /**
      * @var mixed|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application

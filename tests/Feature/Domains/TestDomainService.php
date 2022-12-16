@@ -3,7 +3,7 @@
 namespace Tests\Feature\Domains;
 
 use Tests\TestCase;
-use Digitalocean\Services\DomainService;
+use Digitalocean\Services\DomainsService;
 
 class TestDomainService extends TestCase
 {
@@ -13,7 +13,7 @@ class TestDomainService extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->service = $this->app->make(DomainService::class);
+        $this->service = $this->app->make(DomainsService::class);
     }
 
     public function testIndex()

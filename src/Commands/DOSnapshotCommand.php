@@ -2,8 +2,8 @@
 
 namespace Digitalocean\Commands;
 
-use Digitalocean\Services\DropletActionService;
-use Digitalocean\Services\SnapshotService;
+use Digitalocean\Services\DropletActionsService;
+use Digitalocean\Services\SnapshotsService;
 use Illuminate\Console\Command;
 
 class DOSnapshotCommand extends Command
@@ -16,7 +16,7 @@ class DOSnapshotCommand extends Command
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \JsonException
      */
-    public function handle(SnapshotService $snapshotService): int
+    public function handle(SnapshotsService $snapshotService): int
     {
         $dropletId = $this->option('dropletId') ?? config('digital-ocean.droplet_id');
 

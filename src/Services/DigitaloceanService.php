@@ -29,16 +29,16 @@ class DigitaloceanService
 
     public function domains(): mixed
     {
-        return app(DomainService::class);
+        return app(DomainsService::class);
     }
 
     public function dropletActions()
     {
-        return app(DropletActionService::class);
+        return app(DropletActionsService::class);
     }
 
     public function snapshots()
     {
-        return app(SnapshotService::class);
+        return app(SnapshotsService::class);
     }
 }

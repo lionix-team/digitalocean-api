@@ -4,7 +4,7 @@ namespace Digitalocean\Services;
 
 use Illuminate\Support\Facades\Validator;
 
-class SnapshotService
+class SnapshotsService
 {
     /**
      * @var mixed|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application

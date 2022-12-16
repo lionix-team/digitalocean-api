@@ -2,7 +2,7 @@
 
 namespace Digitalocean\Services;
 
-class DropletActionService
+class DropletActionsService
 {
     /**
      * @param \Digitalocean\Services\DigitaloceanApi $digitaloceanApi

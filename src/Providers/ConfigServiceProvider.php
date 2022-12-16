@@ -5,10 +5,10 @@ namespace Digitalocean\Providers;
 use Digitalocean\Commands\DOSnapshotCommand;
 use Digitalocean\Services\DigitaloceanApi;
 use Digitalocean\Services\DigitaloceanService;
-use Digitalocean\Services\DomainService;
-use Digitalocean\Services\DropletActionService;
+use Digitalocean\Services\DomainsService;
+use Digitalocean\Services\DropletActionsService;
 use Digitalocean\Services\DropletsService;
-use Digitalocean\Services\SnapshotService;
+use Digitalocean\Services\SnapshotsService;
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 
@@ -54,20 +54,20 @@ class ConfigServiceProvider extends ServiceProvider
             return new DigitaloceanApi($client);
         });
 
-        $this->app->singleton(DomainService::class, function ($app) {
-            return new DomainService($app->make(DigitaloceanApi::class));
+        $this->app->singleton(DomainsService::class, function ($app) {
+            return new DomainsService($app->make(DigitaloceanApi::class));
         });
 
         $this->app->singleton(DropletsService::class, function ($app) {
             return new DropletsService($app->make(DigitaloceanApi::class));
         });
 
-        $this->app->singleton(SnapshotService::class, function ($app) {
-            return new SnapshotService($app->make(DigitaloceanApi::class));
+        $this->app->singleton(SnapshotsService::class, function ($app) {
+            return new SnapshotsService($app->make(DigitaloceanApi::class));
         });
 
-        $this->app->singleton(DropletActionService::class, function ($app) {
-            return new DropletActionService($app->make(DigitaloceanApi::class));
+        $this->app->singleton(DropletActionsService::class, function ($app) {
+            return new DropletActionsService($app->make(DigitaloceanApi::class));
         });
 
         $this->app->singleton(DigitaloceanService::class, function ($app) {
