@@ -1,6 +1,7 @@
 {
     "name": "lionix/digitalocean",
     "description": "Digital Ocean API for Laravel Framework",
+    "keywords": ["laravel", "digitalocean", "api", "lionix", "digital", "ocean", "digitalocean-api"],
     "type": "library",
     "license": "MIT",
     "authors": [
