@@ -1,5 +1,7 @@
 # Digital Ocean API for Laravel Framework
 
+![laravel-digitalocean](https://user-images.githubusercontent.com/12999189/208249278-b10946b5-2529-4f2f-b130-449d67ee8a34.png)
+
 ---
 
 Digital Ocean API for Laravel Framework is a package created by Arayik Smbatyan ([@arayiksmbatyan](https://github.com/arayiksmbatyan)) from **Lionix** to make it easier to use Digital Ocean API in Laravel Framework.
