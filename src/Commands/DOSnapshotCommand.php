@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Digitalocean\Commands;
 
+use Digitalocean\Services\ActionsService;
 use Digitalocean\Services\SnapshotsService;
 use Illuminate\Console\Command;
 
@@ -12,11 +13,13 @@ class DOSnapshotCommand extends Command
     protected $signature = 'do:snapshot
                             {--dropletId= : The droplet ID (defaults to the DO_DROPLET_ID env value)}
                             {--name= : Snapshot name prefix (defaults to the droplet ID)}
-                            {--dropOldSnapshots : Delete the droplet\'s existing snapshots after the new one is requested}';
+                            {--dropOldSnapshots : Delete the droplet\'s existing snapshots after the new one is requested (or completed with --wait)}
+                            {--wait : Wait until the snapshot has finished}
+                            {--timeout=3600 : Maximum seconds to wait with --wait}';
 
     protected $description = 'Create a DigitalOcean droplet snapshot';
 
-    public function handle(SnapshotsService $snapshots): int
+    public function handle(SnapshotsService $snapshots, ActionsService $actions): int
     {
         $dropletId = $this->option('dropletId')
             ?? config('digital-ocean.droplet_id')
@@ -55,6 +58,21 @@ class DOSnapshotCommand extends Command
         }
 
         $this->components->info("Snapshot for droplet {$dropletId} requested successfully.");
+
+        if ($this->option('wait') && isset($response['action']['id'])) {
+            $this->components->info('Waiting for the snapshot to finish...');
+
+            $action = $actions->waitFor((int) $response['action']['id'], (int) $this->option('timeout'));
+
+            if (! ActionsService::completed($action)) {
+                $status = $action['action']['status'] ?? ($action['message'] ?? 'unknown');
+                $this->components->error("Snapshot did not complete (status: {$status}). Old snapshots were kept.");
+
+                return self::FAILURE;
+            }
+
+            $this->components->info('Snapshot completed.');
+        }
 
         foreach ($oldSnapshots as $snapshot) {
             $this->components->task(

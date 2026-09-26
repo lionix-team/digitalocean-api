@@ -1,7 +1,7 @@
 {
     "name": "lionix/digitalocean",
     "description": "DigitalOcean API client for the Laravel framework",
-    "keywords": ["laravel", "digitalocean", "api", "lionix", "digital", "ocean", "digitalocean-api", "droplets", "snapshots"],
+    "keywords": ["laravel", "digitalocean", "api", "lionix", "digital", "ocean", "digitalocean-api", "droplets", "snapshots", "dns", "firewall", "cdn"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -43,10 +43,19 @@
             ],
             "aliases": {
                 "Digitalocean": "Digitalocean\\Facades\\DigitaloceanFacade",
+                "Actions": "Digitalocean\\Facades\\ActionsFacade",
+                "Cdn": "Digitalocean\\Facades\\CdnFacade",
+                "DomainRecords": "Digitalocean\\Facades\\DomainRecordsFacade",
                 "Domains": "Digitalocean\\Facades\\DomainsFacade",
-                "Droplets": "Digitalocean\\Facades\\DropletsFacade",
                 "DropletActions": "Digitalocean\\Facades\\DropletActionsFacade",
-                "Snapshots": "Digitalocean\\Facades\\SnapshotsFacade"
+                "Droplets": "Digitalocean\\Facades\\DropletsFacade",
+                "Firewalls": "Digitalocean\\Facades\\FirewallsFacade",
+                "Images": "Digitalocean\\Facades\\ImagesFacade",
+                "Regions": "Digitalocean\\Facades\\RegionsFacade",
+                "ReservedIps": "Digitalocean\\Facades\\ReservedIpsFacade",
+                "Sizes": "Digitalocean\\Facades\\SizesFacade",
+                "Snapshots": "Digitalocean\\Facades\\SnapshotsFacade",
+                "SshKeys": "Digitalocean\\Facades\\SshKeysFacade"
             }
         }
     },

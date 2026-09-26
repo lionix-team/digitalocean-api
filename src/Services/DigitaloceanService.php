@@ -44,4 +44,54 @@ class DigitaloceanService
     {
         return app(SnapshotsService::class);
     }
+
+    public function account(): AccountService
+    {
+        return app(AccountService::class);
+    }
+
+    public function actions(): ActionsService
+    {
+        return app(ActionsService::class);
+    }
+
+    public function cdn(): CdnService
+    {
+        return app(CdnService::class);
+    }
+
+    public function domainRecords(): DomainRecordsService
+    {
+        return app(DomainRecordsService::class);
+    }
+
+    public function firewalls(): FirewallsService
+    {
+        return app(FirewallsService::class);
+    }
+
+    public function images(): ImagesService
+    {
+        return app(ImagesService::class);
+    }
+
+    public function regions(): RegionsService
+    {
+        return app(RegionsService::class);
+    }
+
+    public function reservedIps(): ReservedIpsService
+    {
+        return app(ReservedIpsService::class);
+    }
+
+    public function sizes(): SizesService
+    {
+        return app(SizesService::class);
+    }
+
+    public function sshKeys(): SshKeysService
+    {
+        return app(SshKeysService::class);
+    }
 }

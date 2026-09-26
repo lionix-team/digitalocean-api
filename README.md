@@ -45,10 +45,32 @@ DO_APP_TOKEN=your-token
 
 # Optional
 DO_DROPLET_ID=123456789   # default droplet for the do:snapshot command
+DO_CDN_ENDPOINT_ID=...    # default endpoint for the do:cdn-purge command
 DO_TIMEOUT=30             # request timeout in seconds
 DO_RETRY_TIMES=0          # retries on connection errors, 429 and 5xx responses
 DO_RETRY_SLEEP=100        # milliseconds between retries
 ```
+
+## Available services
+
+| Facade           | Global accessor                   | API                                      |
+|------------------|-----------------------------------|------------------------------------------|
+| `Droplets`       | `Digitalocean::droplets()`        | Droplets                                 |
+| `DropletActions` | `Digitalocean::dropletActions()`  | Droplet actions (power, resize, …)       |
+| `Snapshots`      | `Digitalocean::snapshots()`       | Snapshots                                |
+| `Domains`        | `Digitalocean::domains()`         | Domains                                  |
+| `DomainRecords`  | `Digitalocean::domainRecords()`   | DNS records                              |
+| `SshKeys`        | `Digitalocean::sshKeys()`         | SSH keys                                 |
+| `Firewalls`      | `Digitalocean::firewalls()`       | Cloud firewalls                          |
+| `ReservedIps`    | `Digitalocean::reservedIps()`     | Reserved (floating) IPs                  |
+| `Cdn`            | `Digitalocean::cdn()`             | CDN endpoints and cache purge            |
+| `Actions`        | `Digitalocean::actions()`         | Action status and waiting                |
+| `Regions`        | `Digitalocean::regions()`         | Regions                                  |
+| `Sizes`          | `Digitalocean::sizes()`           | Droplet sizes                            |
+| `Images`         | `Digitalocean::images()`          | Images                                   |
+| —                | `Digitalocean::account()`         | Account info and balance                 |
+
+The service classes live in `Digitalocean\Services` and the facades in `Digitalocean\Facades`.
 
 ## Usage
 
@@ -146,12 +168,129 @@ Snapshots::show($snapshotId);
 Snapshots::destroy($snapshotId);
 ```
 
+### DNS Records
+
+```php
+DomainRecords::list('example.com', type: 'A', name: 'www.example.com');
+
+DomainRecords::store('example.com', [
+    'type' => 'A',        // A, AAAA, CAA, CNAME, MX, NS, SOA, SRV, TXT
+    'name' => 'tenant1',
+    'data' => '203.0.113.10',
+    'ttl'  => 3600,
+]);
+
+DomainRecords::show('example.com', $recordId);
+DomainRecords::update('example.com', $recordId, ['data' => '203.0.113.20']);
+DomainRecords::destroy('example.com', $recordId);
+```
+
+### SSH Keys
+
+```php
+SshKeys::list();
+SshKeys::store('deploy-key', 'ssh-ed25519 AAAAC3Nza... deploy@example.com');
+SshKeys::show($idOrFingerprint);
+SshKeys::update($idOrFingerprint, 'new-name');
+SshKeys::destroy($idOrFingerprint);
+```
+
+### Regions, Sizes and Images
+
+Reference data for building a "create droplet" form:
+
+```php
+Regions::list();
+Sizes::list();
+Images::list(type: 'distribution');   // or 'application'
+Images::list(private: true);          // your snapshots, backups and custom images
+Images::show('ubuntu-24-04-x64');
+Images::destroy($imageId);
+```
+
+### Firewalls
+
+```php
+Firewalls::list();
+
+Firewalls::store([
+    'name' => 'web',
+    'inbound_rules' => [
+        ['protocol' => 'tcp', 'ports' => '80',  'sources' => ['addresses' => ['0.0.0.0/0', '::/0']]],
+        ['protocol' => 'tcp', 'ports' => '443', 'sources' => ['addresses' => ['0.0.0.0/0', '::/0']]],
+    ],
+    'outbound_rules' => [
+        ['protocol' => 'tcp', 'ports' => 'all', 'destinations' => ['addresses' => ['0.0.0.0/0', '::/0']]],
+    ],
+    'tags' => ['web'],
+]);
+
+// Temporarily allow SSH from a CI runner, then revoke it
+Firewalls::allowAddress($firewallId, '203.0.113.7', ports: '22');
+Firewalls::revokeAddress($firewallId, '203.0.113.7', ports: '22');
+
+Firewalls::addRules($firewallId, inbound: [...], outbound: [...]);
+Firewalls::removeRules($firewallId, inbound: [...]);
+Firewalls::addDroplets($firewallId, [123, 456]);
+Firewalls::removeDroplets($firewallId, [456]);
+Firewalls::addTags($firewallId, ['api']);
+Firewalls::removeTags($firewallId, ['api']);
+Firewalls::update($firewallId, $fullDefinition);   // replaces the whole firewall
+Firewalls::destroy($firewallId);
+```
+
+### Reserved IPs
+
+```php
+ReservedIps::list();
+ReservedIps::store(['droplet_id' => 123]);     // or ['region' => 'nyc3']
+ReservedIps::assign('203.0.113.50', 456);      // move the IP to another droplet (failover)
+ReservedIps::unassign('203.0.113.50');
+ReservedIps::show('203.0.113.50');
+ReservedIps::destroy('203.0.113.50');
+```
+
+### CDN
+
+```php
+Cdn::list();
+Cdn::show($endpointId);
+Cdn::purge($endpointId);                          // everything
+Cdn::purge($endpointId, ['assets/*', 'index.html']);
+```
+
+### Actions
+
+Most write operations (snapshots, power actions, IP assignment…) return an `action`. You can check it or wait for it:
+
+```php
+use Digitalocean\Services\ActionsService;
+
+$response = DropletActions::reboot(123);
+
+$result = Actions::waitFor($response['action']['id'], timeout: 300, interval: 5);
+
+if (ActionsService::completed($result)) {
+    // done
+}
+
+Actions::list();
+Actions::show($actionId);
+```
+
+### Account
+
+```php
+Digitalocean::account()->show();
+Digitalocean::account()->balance();
+```
+
 ### Any other endpoint
 
 The global service can call any endpoint that does not have a dedicated wrapper yet:
 
 ```php
-Digitalocean::send('GET', 'account');
+Digitalocean::send('GET', 'volumes');
 Digitalocean::send('POST', 'tags', ['name' => 'production']);
 ```
 
@@ -161,7 +300,9 @@ For full control you can grab a pre-configured `PendingRequest` (base URL, token
 app(\Digitalocean\Services\DigitaloceanApi::class)->request()->get('sizes')->json();
 ```
 
-## Snapshot command
+## Artisan commands
+
+### Snapshot
 
 ```bash
 php artisan do:snapshot --dropletId=123 --name=nightly --dropOldSnapshots
@@ -172,16 +313,27 @@ php artisan do:snapshot --dropletId=123 --name=nightly --dropOldSnapshots
 | `--dropletId`        | Droplet ID. Falls back to `DO_DROPLET_ID`, then asks interactively.                  |
 | `--name`             | Snapshot name prefix (defaults to the droplet ID). The current date-time is appended. |
 | `--dropOldSnapshots` | Delete the droplet's existing snapshots once the new snapshot is requested.          |
+| `--wait`             | Wait until the snapshot has finished.                                                 |
+| `--timeout`          | Maximum seconds to wait with `--wait` (default `3600`).                               |
 
-Old snapshots are only removed if the new snapshot request succeeds. The command exits with a non-zero code on
-failure, so it is safe to schedule:
+Old snapshots are only removed if the new snapshot request succeeds, and with `--wait` only once the snapshot has
+actually completed. The command exits with a non-zero code on failure, so it is safe to schedule:
 
 ```php
 // routes/console.php
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('do:snapshot --dropOldSnapshots')->dailyAt('03:00');
+Schedule::command('do:snapshot --dropOldSnapshots --wait')->dailyAt('03:00');
 ```
+
+### CDN purge
+
+```bash
+php artisan do:cdn-purge                                   # everything on DO_CDN_ENDPOINT_ID
+php artisan do:cdn-purge <endpoint-id> --file="css/*" --file="js/*"
+```
+
+Handy as the last step of a deploy script.
 
 ## Testing
 
