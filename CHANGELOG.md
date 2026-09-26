@@ -10,7 +10,8 @@ A modernization release for current PHP and Laravel versions.
 ### Requirements
 
 - PHP **8.2 – 8.5** (was `^8.0`).
-- Laravel **11, 12 and 13** (Laravel 13 requires PHP 8.3+).
+- Laravel **12 and 13** (Laravel 13 requires PHP 8.3+). Laravel 11 is end-of-life and every 11.x release has open
+  security advisories, so it is not supported.
 
 ### Added
 
@@ -23,7 +24,7 @@ A modernization release for current PHP and Laravel versions.
 - `DigitaloceanApi::request()` returns a pre-configured `PendingRequest` for endpoints without a wrapper.
 - `timeout` and `retry` config options (`DO_TIMEOUT`, `DO_RETRY_TIMES`, `DO_RETRY_SLEEP`).
 - Typed return values, `declare(strict_types=1)` and `@method` facade annotations for IDE autocompletion.
-- An offline test suite built on `Http::fake()`, and a GitHub Actions matrix for PHP 8.2–8.5 × Laravel 11–13.
+- An offline test suite built on `Http::fake()`, and a GitHub Actions matrix for PHP 8.2–8.5 × Laravel 12–13.
 
 ### Changed
 
@@ -60,7 +61,7 @@ A modernization release for current PHP and Laravel versions.
 
 ## Upgrading from 1.x
 
-1. Make sure your application runs on PHP 8.2+ and Laravel 11+, then run
+1. Make sure your application runs on PHP 8.2+ and Laravel 12+, then run
    `composer require lionix/digitalocean:^2.0`.
 2. If you published `config/digital-ocean.php`, rename `dropletId` to `droplet_id`, or re-publish it with
    `php artisan vendor:publish --tag=digital-ocean-config --force`.

@@ -16,7 +16,7 @@ and fully testable with `Http::fake()`.
 
 | Package | PHP         | Laravel      |
 |---------|-------------|--------------|
-| 2.x     | 8.2 – 8.5   | 11, 12, 13   |
+| 2.x     | 8.2 – 8.5   | 12, 13       |
 | 1.x     | 8.0+        | 8 – 10       |
 
 > Laravel 13 itself requires PHP 8.3+.
