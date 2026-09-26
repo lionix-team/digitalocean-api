@@ -1,26 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
-use Digitalocean\Providers\ConfigServiceProvider;
+use Digitalocean\DigitaloceanServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
-class TestCase extends OrchestraTestCase
+abstract class TestCase extends OrchestraTestCase
 {
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
-            ConfigServiceProvider::class,
+            DigitaloceanServiceProvider::class,
         ];
     }
 
-    protected function getEnvironmentSetUp($app)
+    protected function defineEnvironment($app): void
     {
-        // perform environment setup
+        $app['config']->set('digital-ocean.token', 'test-token');
     }
 }
