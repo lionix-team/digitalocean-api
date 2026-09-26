@@ -19,7 +19,31 @@ use Illuminate\Support\Facades\Http;
 class DigitaloceanApi
 {
     /**
-     * @param  array<string, mixed>  $params  Sent as the query string for GET/DELETE and as a JSON body otherwise.
+     * Default endpoint paths, used when a key is missing from a published config file.
+     */
+    public const ENDPOINTS = [
+        'account' => 'account',
+        'actions' => 'actions',
+        'balance' => 'customers/my/balance',
+        'cdn' => 'cdn/endpoints',
+        'domains' => 'domains',
+        'domain_records' => 'domains/:domain/records',
+        'droplets' => [
+            'index' => 'droplets',
+            'snapshots' => 'droplets/:dropletId/snapshots',
+            'actions' => 'droplets/:dropletId/actions',
+        ],
+        'firewalls' => 'firewalls',
+        'images' => 'images',
+        'regions' => 'regions',
+        'reserved_ips' => 'reserved_ips',
+        'sizes' => 'sizes',
+        'snapshots' => 'snapshots',
+        'ssh_keys' => 'account/keys',
+    ];
+
+    /**
+     * @param  array<string, mixed>  $params  Sent as the query string for GET/HEAD/DELETE and as a JSON body otherwise.
      * @return array<string, mixed>
      *
      * @throws ConnectionException
@@ -27,13 +51,32 @@ class DigitaloceanApi
     public function send(string $method, string $uri, array $params = []): array
     {
         $method = strtoupper($method);
-        $options = [];
 
-        if ($params !== []) {
-            $options[in_array($method, ['GET', 'HEAD', 'DELETE'], true) ? 'query' : 'json'] = $params;
-        }
+        return $this->dispatch($method, $uri, $params, in_array($method, ['GET', 'HEAD', 'DELETE'], true) ? 'query' : 'json');
+    }
 
-        $response = $this->request()->send($method, ltrim($uri, '/'), $options);
+    /**
+     * Send the params as a JSON body regardless of the method (e.g. DELETE endpoints that expect a body).
+     *
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
+     */
+    public function sendWithBody(string $method, string $uri, array $params = []): array
+    {
+        return $this->dispatch(strtoupper($method), $uri, $params, 'json');
+    }
+
+    /**
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
+     */
+    protected function dispatch(string $method, string $uri, array $params, string $as): array
+    {
+        $response = $this->request()->send($method, ltrim($uri, '/'), $params === [] ? [] : [$as => $params]);
 
         $data = $response->json();
 
@@ -70,12 +113,26 @@ class DigitaloceanApi
     }
 
     /**
-     * Replace the `:dropletId` placeholder in a configured endpoint.
+     * Resolve a configured endpoint and fill its placeholders.
+     *
+     * @param  int|string|array<string, int|string>|null  $replace  A droplet ID for `:dropletId`, or a map of placeholder => value.
      */
-    public static function endpoint(string $key, int|string|null $dropletId = null): string
+    public static function endpoint(string $key, int|string|array|null $replace = null): string
     {
-        $endpoint = (string) config("digital-ocean.endpoints.{$key}");
+        $endpoint = (string) (config("digital-ocean.endpoints.{$key}") ?? data_get(self::ENDPOINTS, $key));
 
-        return $dropletId === null ? $endpoint : str_replace(':dropletId', (string) $dropletId, $endpoint);
+        if ($replace === null) {
+            return $endpoint;
+        }
+
+        if (! is_array($replace)) {
+            $replace = ['dropletId' => $replace];
+        }
+
+        foreach ($replace as $placeholder => $value) {
+            $endpoint = str_replace(':'.$placeholder, rawurlencode((string) $value), $endpoint);
+        }
+
+        return $endpoint;
     }
 }

@@ -3,6 +3,32 @@
 All notable changes to this project are documented in this file.
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-09-26
+
+New API services. No breaking changes.
+
+### Added
+
+- **DNS records** (`DomainRecords`): list (with type/name filters), create, show, update, delete.
+- **SSH keys** (`SshKeys`): list, create, show, rename, delete.
+- **Regions**, **Sizes** and **Images** (`Regions`, `Sizes`, `Images`) for building droplet forms.
+- **Firewalls** (`Firewalls`): full CRUD, add/remove rules, droplets and tags, plus `allowAddress()` /
+  `revokeAddress()` helpers.
+- **Reserved IPs** (`ReservedIps`): list, create, show, delete, assign and unassign.
+- **CDN** (`Cdn`): list and show endpoints, purge cache.
+- **Actions** (`Actions`): list, show and `waitFor()` to poll an action until it finishes.
+- **Account** (`Digitalocean::account()`): account info and balance.
+- `php artisan do:cdn-purge` command and `DO_CDN_ENDPOINT_ID` config.
+- `--wait` and `--timeout` options on `do:snapshot`. With `--wait`, old snapshots are only dropped once the new one
+  has completed.
+- `DigitaloceanApi::sendWithBody()` for endpoints that expect a JSON body on `DELETE`.
+
+### Changed
+
+- `DigitaloceanApi::endpoint()` falls back to built-in paths when a key is missing from a published config file,
+  so apps that published the 2.0 config keep working without re-publishing. It also accepts a map of
+  placeholders.
+
 ## [2.0.0] - 2026-09-26
 
 A modernization release for current PHP and Laravel versions.

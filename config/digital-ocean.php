@@ -29,6 +29,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default CDN Endpoint
+    |--------------------------------------------------------------------------
+    |
+    | Used by the `do:cdn-purge` command when no endpoint ID is given.
+    |
+    */
+
+    'cdn_endpoint_id' => env('DO_CDN_ENDPOINT_ID'),
+
+    /*
+    |--------------------------------------------------------------------------
     | HTTP Options
     |--------------------------------------------------------------------------
     */
@@ -41,13 +52,24 @@ return [
     ],
 
     'endpoints' => [
+        'account' => 'account',
+        'actions' => 'actions',
+        'balance' => 'customers/my/balance',
+        'cdn' => 'cdn/endpoints',
         'domains' => 'domains',
+        'domain_records' => 'domains/:domain/records',
         'droplets' => [
             'index' => 'droplets',
             'snapshots' => 'droplets/:dropletId/snapshots',
             'actions' => 'droplets/:dropletId/actions',
         ],
+        'firewalls' => 'firewalls',
+        'images' => 'images',
+        'regions' => 'regions',
+        'reserved_ips' => 'reserved_ips',
+        'sizes' => 'sizes',
         'snapshots' => 'snapshots',
+        'ssh_keys' => 'account/keys',
     ],
 
 ];
