@@ -1,105 +1,81 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Digitalocean\Services;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
-/**
- * @property \Digitalocean\Services\DigitaloceanApi $digitaloceanApi
- */
 class DropletsService
 {
-    protected string $domainsApiUrl;
-
-    /**
-     * @param \Digitalocean\Services\DigitaloceanApi $digitaloceanApi
-     */
     public function __construct(protected DigitaloceanApi $digitaloceanApi)
     {
-        $this->domainsApiUrl = config('digital-ocean.endpoints.droplets.index');
     }
 
     /**
-     * @param int $perPage
-     * @param int $page
+     * @return array<string, mixed>
      *
-     * @return mixed|\stdClass
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ConnectionException
      */
-    public function list(
-        int $perPage = 20,
-        int $page = 1
-    ): mixed
+    public function list(int $perPage = 20, int $page = 1, ?string $tagName = null): array
     {
-        $params = [
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('droplets.index'), array_filter([
             'per_page' => $perPage,
             'page' => $page,
-        ];
-
-        return $this->digitaloceanApi->send('GET', $this->domainsApiUrl, $params);
+            'tag_name' => $tagName,
+        ], static fn (mixed $value): bool => $value !== null));
     }
 
     /**
-     * @param array $params
+     * Create one droplet (`name`) or several at once (`names`).
      *
-     * @return \Illuminate\Support\MessageBag|mixed|\stdClass
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ValidationException
+     * @throws ConnectionException
      */
-    public function store(array $params): mixed
+    public function store(array $params): array
     {
-        $validator = Validator::make($params, $this->getStoreRules());
+        Validator::make($params, [
+            'name' => ['required_without:names', 'string'],
+            'names' => ['required_without:name', 'array', 'max:10'],
+            'names.*' => ['string'],
+            'region' => ['nullable', 'string'],
+            'size' => ['required', 'string'],
+            'image' => ['required'],
+            'ssh_keys' => ['nullable', 'array'],
+            'backups' => ['nullable', 'boolean'],
+            'ipv6' => ['nullable', 'boolean'],
+            'monitoring' => ['nullable', 'boolean'],
+            'tags' => ['nullable', 'array'],
+            'user_data' => ['nullable', 'string'],
+            'vpc_uuid' => ['nullable', 'string'],
+            'with_droplet_agent' => ['nullable', 'boolean'],
+        ])->validate();
 
-        if($validator->fails()) {
-            return $validator->errors();
-        }
-
-        return $this->digitaloceanApi->send('POST', $this->domainsApiUrl, $params);
+        return $this->digitaloceanApi->send('POST', DigitaloceanApi::endpoint('droplets.index'), $params);
     }
 
     /**
-     * @param int $dropletId
+     * @return array<string, mixed>
      *
-     * @return mixed|\stdClass
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ConnectionException
      */
-    public function show(int $dropletId): mixed
+    public function show(int $dropletId): array
     {
-        return $this->digitaloceanApi->send('GET', "{$this->domainsApiUrl}/{$dropletId}");
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('droplets.index')."/{$dropletId}");
     }
 
     /**
-     * @param int $dropletId
+     * @return array<string, mixed>
      *
-     * @return mixed|\stdClass
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ConnectionException
      */
-    public function destroy(int $dropletId): mixed
+    public function destroy(int $dropletId): array
     {
-        return $this->digitaloceanApi->send('DELETE', "{$this->domainsApiUrl}/{$dropletId}");
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getStoreRules(): array
-    {
-        return [
-            'name' => 'required|string',
-            'region' => 'required|string',
-            'size' => 'required|string',
-            'image' => 'required|regex:/^[a-zA-Z0-9\s]+$/',
-            'ssh_keys' => 'nullable|array',
-            'backups' => 'nullable|boolean',
-            'ipv6' => 'nullable|boolean',
-            'monitoring' => 'nullable|boolean',
-            'tags' => 'nullable|array',
-            'user_data' => 'nullable|string',
-            'vpc_uuid' => 'nullable|string',
-            'with_droplet_agent' => 'nullable|boolean',
-        ];
+        return $this->digitaloceanApi->send('DELETE', DigitaloceanApi::endpoint('droplets.index')."/{$dropletId}");
     }
 }

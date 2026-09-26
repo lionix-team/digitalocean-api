@@ -1,43 +1,78 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Digitalocean\Commands;
 
-use Digitalocean\Services\DropletActionsService;
 use Digitalocean\Services\SnapshotsService;
 use Illuminate\Console\Command;
 
 class DOSnapshotCommand extends Command
 {
-    protected $signature = 'do:snapshot {--dropletId=} {--name=} {--dropOldSnapshots}';
+    protected $signature = 'do:snapshot
+                            {--dropletId= : The droplet ID (defaults to the DO_DROPLET_ID env value)}
+                            {--name= : Snapshot name prefix (defaults to the droplet ID)}
+                            {--dropOldSnapshots : Delete the droplet\'s existing snapshots after the new one is requested}';
 
-    protected $description = 'Create Digital Ocean Snapshot';
+    protected $description = 'Create a DigitalOcean droplet snapshot';
 
-    /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \JsonException
-     */
-    public function handle(SnapshotsService $snapshotService): int
+    public function handle(SnapshotsService $snapshots): int
     {
-        $dropletId = $this->option('dropletId') ?? config('digital-ocean.droplet_id');
+        $dropletId = $this->option('dropletId')
+            ?? config('digital-ocean.droplet_id')
+            ?? config('digital-ocean.dropletId') // 1.x config key
+            ?? $this->ask('What is your droplet id?');
 
-        if (!$dropletId) {
-            $dropletId = $this->ask('What is your droplet id?');
+        if (! is_numeric($dropletId)) {
+            $this->components->error('A numeric droplet ID is required.');
+
+            return self::FAILURE;
         }
+
+        $dropletId = (int) $dropletId;
+
+        // Collect existing snapshots up-front so the new one is never removed.
+        $oldSnapshots = [];
 
         if ($this->option('dropOldSnapshots')) {
-            $snapshots = $snapshotService->list($dropletId);
+            $existing = $snapshots->list($dropletId, perPage: 200);
 
-            collect($snapshots['snapshots'])->each(fn($snapshot) => $snapshotService->destroy($snapshot['id']));
+            if (! $this->successful($existing)) {
+                $this->components->error('Could not list snapshots: '.($existing['message'] ?? 'unknown error'));
+
+                return self::FAILURE;
+            }
+
+            $oldSnapshots = $existing['snapshots'] ?? [];
         }
 
-        $response = $snapshotService->make((int)$dropletId, $this->option('name'));
+        $response = $snapshots->make($dropletId, $this->option('name'));
 
-        if ($response['status_code'] === 200 || $response['status_code'] === 201) {
-            $this->info('Snapshot for droplet ' . $dropletId . ' created successfully');
-        } else {
-            $this->info('Something went wrong');
+        if (! $this->successful($response)) {
+            $this->components->error('Snapshot failed: '.($response['message'] ?? 'unknown error'));
+
+            return self::FAILURE;
         }
 
-        return 0;
+        $this->components->info("Snapshot for droplet {$dropletId} requested successfully.");
+
+        foreach ($oldSnapshots as $snapshot) {
+            $this->components->task(
+                "Deleting snapshot {$snapshot['name']}",
+                fn (): bool => $this->successful($snapshots->destroy($snapshot['id'])),
+            );
+        }
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * @param  array<string, mixed>  $response
+     */
+    private function successful(array $response): bool
+    {
+        $status = $response['status_code'] ?? 0;
+
+        return $status >= 200 && $status < 300;
     }
 }

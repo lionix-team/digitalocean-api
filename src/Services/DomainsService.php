@@ -1,82 +1,66 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Digitalocean\Services;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class DomainsService
 {
-    /**
-     * @var mixed|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application
-     */
-    protected mixed $domainsApiUrl;
-
-    /**
-     * @param \Digitalocean\Services\DigitaloceanApi $digitaloceanApi
-     */
     public function __construct(protected DigitaloceanApi $digitaloceanApi)
     {
-        $this->domainsApiUrl = config('digital-ocean.endpoints.domains');
     }
 
     /**
-     * @return mixed|\stdClass
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
      */
-    public function list(): mixed
+    public function list(int $perPage = 20, int $page = 1): array
     {
-        return $this->digitaloceanApi->send('GET', $this->domainsApiUrl);
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('domains'), [
+            'per_page' => $perPage,
+            'page' => $page,
+        ]);
     }
 
     /**
-     * @param array $params
+     * @param  array{name: string, ip_address?: string|null}  $params
+     * @return array<string, mixed>
      *
-     * @return \Illuminate\Support\MessageBag|mixed|\stdClass
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ValidationException
+     * @throws ConnectionException
      */
-    public function store(array $params): mixed
+    public function store(array $params): array
     {
-        $validator = Validator::make($params, $this->getStoreRules());
+        Validator::make($params, [
+            'name' => ['required', 'string', 'max:253'],
+            'ip_address' => ['nullable', 'ip'],
+        ])->validate();
 
-        if ($validator->fails()) {
-            return $validator->errors();
-        }
-
-        return $this->digitaloceanApi->send('POST', $this->domainsApiUrl, $params);
+        return $this->digitaloceanApi->send('POST', DigitaloceanApi::endpoint('domains'), $params);
     }
 
     /**
-     * @param string $name
+     * @return array<string, mixed>
      *
-     * @return mixed|\stdClass
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ConnectionException
      */
-    public function show(string $name): mixed
+    public function show(string $name): array
     {
-        return $this->digitaloceanApi->send('GET', "{$this->domainsApiUrl}/{$name}");
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('domains').'/'.rawurlencode($name));
     }
 
     /**
-     * @param string $name
+     * @return array<string, mixed>
      *
-     * @return mixed|\stdClass
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ConnectionException
      */
-    public function destroy(string $name): mixed
+    public function destroy(string $name): array
     {
-        return $this->digitaloceanApi->send('DELETE', "{$this->domainsApiUrl}/${name}");
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getStoreRules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'ip_address' => 'nullable|string',
-        ];
+        return $this->digitaloceanApi->send('DELETE', DigitaloceanApi::endpoint('domains').'/'.rawurlencode($name));
     }
 }

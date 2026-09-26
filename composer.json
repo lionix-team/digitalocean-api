@@ -1,7 +1,7 @@
 {
     "name": "lionix/digitalocean",
-    "description": "Digital Ocean API for Laravel Framework",
-    "keywords": ["laravel", "digitalocean", "api", "lionix", "digital", "ocean", "digitalocean-api"],
+    "description": "DigitalOcean API client for the Laravel framework",
+    "keywords": ["laravel", "digitalocean", "api", "lionix", "digital", "ocean", "digitalocean-api", "droplets", "snapshots"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -15,35 +15,47 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "guzzlehttp/guzzle": "^7.4"
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.8",
+        "illuminate/console": "^12.0|^13.0",
+        "illuminate/http": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
+        "illuminate/validation": "^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.5|^12.0"
     },
     "autoload": {
         "psr-4": {
-            "Digitalocean\\" : "./src"
+            "Digitalocean\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\" : "tests"
+            "Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Digitalocean\\Providers\\ConfigServiceProvider"
+                "Digitalocean\\DigitaloceanServiceProvider"
             ],
             "aliases": {
+                "Digitalocean": "Digitalocean\\Facades\\DigitaloceanFacade",
                 "Domains": "Digitalocean\\Facades\\DomainsFacade",
                 "Droplets": "Digitalocean\\Facades\\DropletsFacade",
-                "Snapshots": "Digitalocean\\Facades\\SnapshotsFacade",
-                "DropletActions": "Digitalocean\\Facades\\DropletActions",
-                "Digitalocean": "Digitalocean\\Facades\\DigitaloceanFacade"
+                "DropletActions": "Digitalocean\\Facades\\DropletActionsFacade",
+                "Snapshots": "Digitalocean\\Facades\\SnapshotsFacade"
             }
         }
     },
-    "require-dev": {
-        "orchestra/testbench": "^6.22",
-        "phpunit/phpunit": "^9.5"
-    }
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

@@ -1,70 +1,81 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Digitalocean\Services;
 
-use Illuminate\Support\Facades\Validator;
+use Digitalocean\Enums\DropletActionType;
+use Illuminate\Http\Client\ConnectionException;
 
 class SnapshotsService
 {
-    /**
-     * @var mixed|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application
-     */
-    protected mixed $snapshotsApiUrl;
-
-    /**
-     * @param \Digitalocean\Services\DigitaloceanApi $digitaloceanApi
-     */
     public function __construct(protected DigitaloceanApi $digitaloceanApi)
     {
-        $this->snapshotsApiUrl = config('digital-ocean.endpoints.snapshots');
     }
 
     /**
-     * @return mixed|\stdClass
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
-     */
-    public function list(int $dropletId): mixed
-    {
-        return $this->digitaloceanApi->send('GET',
-            str_replace(':dropletId', $dropletId, config('digital-ocean.endpoints.droplets.snapshots'))
-        );
-    }
-
-    /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \JsonException
-     */
-    public function make(int $dropletId, string $name = null)
-    {
-        return $this->digitaloceanApi->send('POST',
-            str_replace(':dropletId', $dropletId, config('digital-ocean.endpoints.droplets.actions')),
-            [
-                'type' => 'snapshot',
-                'name' => ($name ?: $dropletId) . '-' . now()->toDateTimeString(),
-            ]
-        );
-    }
-
-    /**
-     * @param string $snapshotId
+     * List the snapshots of a droplet.
      *
-     * @return mixed|\stdClass
+     * @return array<string, mixed>
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @throws ConnectionException
      */
-    public function show(string $snapshotId): mixed
+    public function list(int $dropletId, int $perPage = 20, int $page = 1): array
     {
-        return $this->digitaloceanApi->send('GET', "{$this->snapshotsApiUrl}/{$snapshotId}");
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('droplets.snapshots', $dropletId), [
+            'per_page' => $perPage,
+            'page' => $page,
+        ]);
     }
 
     /**
-     * @param string $snapshotId
+     * List all snapshots on the account, optionally filtered by `droplet` or `volume`.
      *
-     * @return mixed|\stdClass
-     * @throws \GuzzleHttp\Exception\GuzzleException|\JsonException
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
      */
-    public function destroy(string $snapshotId): mixed
+    public function all(?string $resourceType = null, int $perPage = 20, int $page = 1): array
     {
-        return $this->digitaloceanApi->send('DELETE', "{$this->snapshotsApiUrl}/{$snapshotId}");
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('snapshots'), array_filter([
+            'resource_type' => $resourceType,
+            'per_page' => $perPage,
+            'page' => $page,
+        ], static fn (mixed $value): bool => $value !== null));
+    }
+
+    /**
+     * Take a snapshot of a droplet. The name defaults to "{name|dropletId}-{Y-m-d H:i:s}".
+     *
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
+     */
+    public function make(int $dropletId, ?string $name = null): array
+    {
+        return $this->digitaloceanApi->send('POST', DigitaloceanApi::endpoint('droplets.actions', $dropletId), [
+            'type' => DropletActionType::Snapshot->value,
+            'name' => ($name ?: $dropletId).'-'.now()->toDateTimeString(),
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
+     */
+    public function show(int|string $snapshotId): array
+    {
+        return $this->digitaloceanApi->send('GET', DigitaloceanApi::endpoint('snapshots')."/{$snapshotId}");
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
+     */
+    public function destroy(int|string $snapshotId): array
+    {
+        return $this->digitaloceanApi->send('DELETE', DigitaloceanApi::endpoint('snapshots')."/{$snapshotId}");
     }
 }
