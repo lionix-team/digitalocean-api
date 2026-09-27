@@ -355,6 +355,12 @@ composer test
 
 See [CHANGELOG.md](CHANGELOG.md#upgrading-from-1x).
 
+## Releasing
+
+Add a `## [x.y.z] - date` section at the top of `CHANGELOG.md` and merge it into `master`. The `release` workflow
+then creates the `x.y.z` tag and a GitHub Release with that section as notes, and Packagist picks up the tag.
+To tag an older commit, run the workflow manually with a `version` and a full commit SHA as `ref`.
+
 ## License
 
 The MIT License (MIT).
